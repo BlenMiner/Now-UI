@@ -53,7 +53,7 @@ public class SimpleRectangle : MonoBehaviour
                 {
                     for (int y = 0; y < COUNT; ++y)
                     {
-                        var rect = new Rect(SIZEX * x, SIZEY * y, SIZEX, SIZEY);
+                        var rect = new Vector4(SIZEX * x, SIZEY * y, SIZEX, SIZEY);
                         if ((x + y) % 2 == 0)
                             NowUI.DrawRect(rect);
                     }

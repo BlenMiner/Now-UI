@@ -45,22 +45,48 @@ public static class NowUI
         m_mesh.ClearVerticies();
     }
 
-    public static void DrawRect(Rect position)
+    static readonly Color defaultColor = Color.white;
+
+    public static void DrawRect(Vector4 position)
     {
-        DrawRect(Rectangle(position));
+        NowUIRectangle rect = default;
+        rect.Rect = position;
+        rect.Color = defaultColor;
+        DrawRect(rect);
     }
+
+    static Vector4 rectPos, rectCol, rectOCol;
 
     public static void DrawRect(NowUIRectangle rectangle)
     {
         var position = rectangle.Rect;
 
-        position.size = new Vector2(Mathf.RoundToInt(position.size.x - rectangle.Padding.x - rectangle.Padding.z), Mathf.RoundToInt(position.size.y - rectangle.Padding.y - rectangle.Padding.w));
-        position.position = new Vector2(Mathf.RoundToInt(position.position.x + rectangle.Padding.x), -Mathf.RoundToInt(position.position.y + rectangle.Padding.y) - position.size.y);
+        float rectHeight = position.w;
 
-        m_mesh.AddRect(position, 0f, rectangle.Radius, rectangle.Color, rectangle.Blur, rectangle.Outline, rectangle.OutlineColor);
+        var pad = rectangle.Padding;
+
+        var c = rectangle.Color;
+        var oc = rectangle.OutlineColor;
+
+        rectPos.x = (int)(position.x + pad.x);
+        rectPos.y = -(int)(position.y + pad.y) - rectHeight;
+        rectPos.z = (int)(position.z - pad.x - pad.z);
+        rectPos.w = (int)(rectHeight - pad.y - pad.w);
+
+        rectCol.x = c.r;
+        rectCol.y = c.g;
+        rectCol.z = c.b;
+        rectCol.w = c.a;
+
+        rectOCol.x = oc.r;
+        rectOCol.y = oc.g;
+        rectOCol.z = oc.b;
+        rectOCol.w = oc.a;
+
+        m_mesh.AddRect(rectPos, 0f, rectangle.Radius, rectCol, rectangle.Blur, rectangle.Outline, rectOCol);
     }
 
-    public static NowUIRectangle Rectangle(Rect position)
+    public static NowUIRectangle Rectangle(Vector4 position)
     {
         return new NowUIRectangle(position);
     }

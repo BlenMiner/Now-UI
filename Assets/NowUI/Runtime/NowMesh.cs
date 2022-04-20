@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace NowUIInternal
@@ -13,11 +14,6 @@ namespace NowUIInternal
         {
             Count = 0;
             Array = new T[count];
-        }
-
-        public void Push(T val)
-        {
-            Array[Count++] = val;
         }
 
         public void Clear()
@@ -44,7 +40,7 @@ namespace NowUIInternal
 
         StaticList<Vector2> m_uvs;
 
-        List<int> m_tris;
+        StaticList<int> m_tris;
 
         public NowMesh()
         {
@@ -57,67 +53,132 @@ namespace NowUIInternal
             m_color = new StaticList<Vector4>(v);
             m_outlineColor = new StaticList<Vector4>(v);
             m_extra = new StaticList<Vector4>(v);
-            m_tris = new List<int>(v);
+            m_tris = new StaticList<int>(v * 3);
         }
 
-        readonly int[] I_BUFFER = new int[6];
+        Vector2[] uvConst = new Vector2[] {
+            new Vector2(0, 0),
+            new Vector2(0, 1),
+            new Vector2(1, 1),
+            new Vector2(1, 0)
+        };
 
-        public void AddRect(Rect position, float z)
-        {
-            AddRect(position, z, default, Color.white, default, 0f, Color.black);
-        }
+        Vector3 a, b, c, d;
 
-        public void AddRect(Rect position, float z, Vector4 radius, Color color, float blur, float outline, Color outlineColor)
+        Vector4 extra;
+
+        public void AddRect(Vector4 position, float z, Vector4 radius, Vector4 color, float blur, float outline, Vector4 outlineColor)
         {
             int indexOffset = m_verts.Count;
 
-            var rectV4 = new Vector4(position.position.x, position.position.y, position.size.x, position.size.y);
+            extra.x = blur;
+            extra.y = outline;
 
-            m_rect.Push(rectV4);
-            m_rect.Push(rectV4);
-            m_rect.Push(rectV4);
-            m_rect.Push(rectV4);
+            var rarray = m_rect.Array;
+            var rcount = m_rect.Count;
 
-            m_radius.Push(radius);
-            m_radius.Push(radius);
-            m_radius.Push(radius);
-            m_radius.Push(radius);
+            rarray[rcount] = position;
+            rarray[rcount + 1] = position;
+            rarray[rcount + 2] = position;
+            rarray[rcount + 3] = position;
 
-            m_color.Push(color);
-            m_color.Push(color);
-            m_color.Push(color);
-            m_color.Push(color);
+            m_rect.Count += 4;
 
-            m_outlineColor.Push(outlineColor);
-            m_outlineColor.Push(outlineColor);
-            m_outlineColor.Push(outlineColor);
-            m_outlineColor.Push(outlineColor);
+            var rrad= m_radius.Array;
+            var rrcount = m_radius.Count;
 
-            var extraData = new Vector4(blur, outline, 0, 0);
+            rrad[rrcount] = radius;
+            rrad[rrcount + 1] = radius;
+            rrad[rrcount + 2] = radius;
+            rrad[rrcount + 3] = radius;
 
-            m_extra.Push(extraData);
-            m_extra.Push(extraData);
-            m_extra.Push(extraData);
-            m_extra.Push(extraData);
+            m_radius.Count += 4;
 
-            m_verts.Push(new Vector3(position.x,                  position.y,                   0));
-            m_verts.Push(new Vector3(position.x,                  position.y + position.height, 0));
-            m_verts.Push(new Vector3(position.x + position.width, position.y + position.height, 0));
-            m_verts.Push(new Vector3(position.x + position.width, position.y                  , 0));
+            var rcol = m_color.Array;
+            var ccount = m_color.Count;
 
-            m_uvs.Push(new Vector2(0, 0));
-            m_uvs.Push(new Vector2(0, 1));
-            m_uvs.Push(new Vector2(1, 1));
-            m_uvs.Push(new Vector2(1, 0));
+            rcol[ccount] = color;
+            rcol[ccount + 1] = color;
+            rcol[ccount + 2] = color;
+            rcol[ccount + 3] = color;
 
-            I_BUFFER[0] = indexOffset + 0;
-            I_BUFFER[1] = indexOffset + 1;
-            I_BUFFER[2] = indexOffset + 2;
-            I_BUFFER[3] = indexOffset + 0;
-            I_BUFFER[4] = indexOffset + 2;
-            I_BUFFER[5] = indexOffset + 3;
+            m_color.Count += 4;
 
-            m_tris.AddRange(I_BUFFER);
+            var rout = m_outlineColor.Array;
+            var ocount = m_outlineColor.Count;
+
+            rout[ocount] = outlineColor;
+            rout[ocount + 1] = outlineColor;
+            rout[ocount + 2] = outlineColor;
+            rout[ocount + 3] = outlineColor;
+
+            m_outlineColor.Count += 4;
+
+            var rextra = m_extra.Array;
+            var extraC = m_extra.Count;
+
+            rextra[extraC] = extra;
+            rextra[extraC + 1] = extra;
+            rextra[extraC + 2] = extra;
+            rextra[extraC + 3] = extra;
+
+            m_extra.Count += 4;
+
+            a.x = position.x;
+            a.y = position.y;
+            a.z = z;
+            
+            b.x = a.x;
+            b.y = a.y + position.w;
+            b.z = z;
+
+            c.x = a.x + position.z;
+            c.y = b.y;
+            c.z = z;
+
+            d.x = c.x;
+            d.y = a.y;
+            d.z = z;
+
+            var varr = m_verts.Array;
+            var vcount = m_verts.Count;
+
+            varr[vcount++] = a;
+            varr[vcount++] = b;
+            varr[vcount++] = c;
+            varr[vcount++] = d;
+
+            m_verts.Count = vcount;
+
+            var ruvs = m_uvs.Array;
+            var ruvsCount = m_uvs.Count;
+
+            ruvs[ruvsCount] = uvConst[0];
+            ruvs[ruvsCount + 1] = uvConst[1];
+            ruvs[ruvsCount + 2] = uvConst[2];
+            ruvs[ruvsCount + 3] = uvConst[3];
+
+            m_uvs.Count += 4;
+
+            int ucount = m_uvs.Count;
+            var uarr = m_uvs.Array;
+
+            uarr[ucount] = uvConst[0];
+            uarr[ucount + 1] = uvConst[1];
+            uarr[ucount + 2] = uvConst[2];
+            uarr[ucount + 3] = uvConst[3];
+
+            int triCount = m_tris.Count;
+            var triArr = m_tris.Array;
+
+            triArr[triCount + 0] = indexOffset + 0;
+            triArr[triCount + 1] = indexOffset + 1;
+            triArr[triCount + 2] = indexOffset + 2;
+            triArr[triCount + 3] = indexOffset + 0;
+            triArr[triCount + 4] = indexOffset + 2;
+            triArr[triCount + 5] = indexOffset + 3;
+
+            m_tris.Count += 6;
         }
 
         public void ClearVerticies()
@@ -150,7 +211,7 @@ namespace NowUIInternal
             UnityMesh.SetUVs(3, m_color.Array, 0, m_color.Count);
             UnityMesh.SetUVs(4, m_outlineColor.Array, 0, m_outlineColor.Count);
             UnityMesh.SetUVs(5, m_extra.Array, 0, m_extra.Count);
-            UnityMesh.SetTriangles(m_tris, 0, false);
+            UnityMesh.SetTriangles(m_tris.Array, 0, m_tris.Count, 0);
         }
     }
 }

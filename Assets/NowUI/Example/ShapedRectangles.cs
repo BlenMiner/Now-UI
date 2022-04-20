@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class ShapedRectangles : MonoBehaviour
 {
+    [Range(1, 200)]
+    public int COUNT = 16;
+
     [SerializeField] Color outline = Color.red;
 
     [SerializeField, Range(-200, 200)] float m_radius;
@@ -16,20 +19,28 @@ public class ShapedRectangles : MonoBehaviour
     {
         NowUI.BeingUI();
 
-        NowUI.Rectangle(new Rect(50, 50, 200, 80))
+        float SIZEX = (float)Screen.width / COUNT;
+        float SIZEY = (float)Screen.height / COUNT;
+
+        var style = NowUI.Rectangle(default)
             .SetOutlineColor(outline)
             .SetBlur(m_blur)
             .SetRadius(m_radius)
             .SetPadding(m_padding)
-            .SetOutline(m_outline)
-            .Draw()
-            .SetBlur(m_blur)
-            .SetPosition(new Rect(70, 70, 200, 80))
-            .SetColor(Color.red)
-            .Draw()
-            .SetPosition(new Rect(90, 90, 200, 80))
-            .SetColor(Color.yellow)
-            .Draw();
+            .SetOutline(m_outline);
+
+        for (int x = 0; x < COUNT; ++x)
+        {
+            for (int y = 0; y < COUNT; ++y)
+            {
+                var rect = new Vector4(SIZEX * x, SIZEY * y, SIZEX, SIZEY);
+                if ((x + y) % 2 == 0)
+                {
+                    style.SetPosition(rect)
+                        .Draw();
+                }
+            }
+        }
 
         NowUI.EndUI();
     }

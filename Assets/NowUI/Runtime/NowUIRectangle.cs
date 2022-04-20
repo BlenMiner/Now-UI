@@ -2,29 +2,29 @@ using UnityEngine;
 
 public struct NowUIRectangle
 {
-    public Rect Rect {get; private set;}
+    public Vector4 Rect;
 
-    public Vector4 Radius {get; private set;}
+    public Vector4 Radius;
 
-    public Color Color {get; private set;}
+    public Color Color;
 
-    public Vector4 Padding {get; private set;}
+    public Vector4 Padding;
 
-    public float Blur {get; private set;}
+    public float Blur;
 
-    public float Outline {get; private set;}
+    public float Outline;
 
-    public Color OutlineColor {get; private set;}
+    public Color OutlineColor;
 
-    public NowUIRectangle(Rect rect)
+    public NowUIRectangle(Vector4 rect)
     {
         Rect = rect;
         Radius = default;
         Padding = default;
-        Blur = 0f;
-        Outline = 0f;
+        Blur = default;
+        Outline = default;
         Color = new Color(1, 1, 1, 1);
-        OutlineColor = new Color(0, 0, 0, 1);
+        OutlineColor = default;
     }
 
     public NowUIRectangle SetBlur(float blur)
@@ -51,7 +51,7 @@ public struct NowUIRectangle
         return this;
     }
 
-    public NowUIRectangle SetPosition(Rect rect)
+    public NowUIRectangle SetPosition(Vector4 rect)
     {
         Rect = rect;
         return this;
