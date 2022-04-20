@@ -32,18 +32,22 @@ Shader "NowUI/UIRectangle"
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
-                float4 rectRad : TEXCOORD1;
-                float4 colorPad : TEXCOORD2;
+                float4 rect : TEXCOORD1;
+                float4 radius : TEXCOORD2;
                 float4 color : TEXCOORD3;
+                float4 outlineColor : TEXCOORD4;
+                float4 extras : TEXCOORD5;
             };
 
             struct v2f
             {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                float4 rectRad : TEXCOORD1;
-                float4 colorPad : TEXCOORD2;
+                float4 rect : TEXCOORD1;
+                float4 radius : TEXCOORD2;
                 float4 color : TEXCOORD3;
+                float4 outlineColor : TEXCOORD4;
+                float4 extras : TEXCOORD5;
             };
 
             sampler2D _MainTex;
@@ -92,21 +96,20 @@ Shader "NowUI/UIRectangle"
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.rectRad = v.rectRad;
-                o.colorPad = v.colorPad;
+                o.rect = v.rect;
+                o.radius = v.radius;
                 o.color = v.color;
+                o.outlineColor = v.outlineColor;
+                o.extras = v.extras;
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float4 rect;
-                float4 rad;
-                float4 color;
-                float4 data;
-
-                Unpack(i.rectRad,  float4(8192, 4096, 8192, 4096), float4(8192, 4096, 8192, 4096), rect, rad);
-                Unpack(i.colorPad, float4(1, 1, 1, 1),             float4(4096, 4096,    1,    1), color, data);
+                float4 rect = i.rect;
+                float4 rad = i.radius;
+                float4 color = i.color;
+                float4 data = i.extras;
 
                 float blur = data.x;
                 float outline = data.y;
@@ -127,7 +130,7 @@ Shader "NowUI/UIRectangle"
                 float graphicAlpha = 1 - smoothstep(-delta - blur, 0, dist);
                 float outlineAlpha = outline == 0 ? 0 : smoothstep(-outline - delta, - outline, dist);
 
-                col = lerp(col, i.color, outlineAlpha);
+                col = lerp(col, i.outlineColor, outlineAlpha);
 
                 clip(col.a - 0.01);
                 col.a *= graphicAlpha;

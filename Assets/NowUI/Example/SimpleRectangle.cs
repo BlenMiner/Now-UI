@@ -4,7 +4,7 @@ public class SimpleRectangle : MonoBehaviour
 {
     public bool useOnGUI = false;
 
-    [Range(1, 500)]
+    [Range(1, 200)]
     public int COUNT = 16;
 
     Texture2D white;
