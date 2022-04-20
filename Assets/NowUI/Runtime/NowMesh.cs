@@ -14,8 +14,6 @@ namespace NowUIInternal
 
         List<Vector3> m_verts;
 
-        List<Vector3> m_normals;
-
         List<Vector2> m_uvs;
 
         List<int> m_tris;
@@ -25,7 +23,6 @@ namespace NowUIInternal
             m_radius = new List<Vector4>();
             m_rect = new List<Vector4>();
             m_verts = new List<Vector3>();
-            m_normals = new List<Vector3>();
             m_uvs = new List<Vector2>();
             m_color = new List<Vector4>();
             m_tris = new List<int>();
@@ -109,13 +106,6 @@ namespace NowUIInternal
 
             m_verts.AddRange(V3_BUFFER);
 
-            V3_BUFFER[0] = new Vector3(0, 0, -1);
-            V3_BUFFER[1] = new Vector3(0, 0, -1);
-            V3_BUFFER[2] = new Vector3(0, 0, -1);
-            V3_BUFFER[3] = new Vector3(0, 0, -1);
-
-            m_normals.AddRange(V3_BUFFER);
-
             V2_BUFFER[0] = new Vector2(0, 0);
             V2_BUFFER[1] = new Vector2(0, 1);
             V2_BUFFER[2] = new Vector2(1, 1);
@@ -138,7 +128,6 @@ namespace NowUIInternal
             m_radius.Clear();
             m_rect.Clear();
             m_verts.Clear();
-            m_normals.Clear();
             m_uvs.Clear();
             m_tris.Clear();
             m_color.Clear();
@@ -156,7 +145,6 @@ namespace NowUIInternal
             UnityMesh.Clear(true);
 
             UnityMesh.SetVertices(m_verts);
-            UnityMesh.SetNormals(m_normals);
             UnityMesh.SetUVs(0, m_uvs);
             UnityMesh.SetUVs(1, m_rect);
             UnityMesh.SetUVs(2, m_radius);
