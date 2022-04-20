@@ -47,9 +47,21 @@ public static class NowUI
 
     public static void DrawRect(Rect position)
     {
-        position.size = new Vector2(Mathf.RoundToInt(position.size.x), Mathf.RoundToInt(position.size.y));
-        position.position = new Vector2(Mathf.RoundToInt(position.position.x), -Mathf.RoundToInt(position.position.y) - position.size.y);
+        DrawRect(Rectangle(position));
+    }
 
-        m_mesh.AddRect(position, 0f);
+    public static void DrawRect(NowUIRectangle rectangle)
+    {
+        var position = rectangle.Rect;
+
+        position.size = new Vector2(Mathf.RoundToInt(position.size.x - rectangle.Padding.x - rectangle.Padding.z), Mathf.RoundToInt(position.size.y - rectangle.Padding.y - rectangle.Padding.w));
+        position.position = new Vector2(Mathf.RoundToInt(position.position.x + rectangle.Padding.x), -Mathf.RoundToInt(position.position.y + rectangle.Padding.y) - position.size.y);
+
+        m_mesh.AddRect(position, 0f, rectangle.Radius, rectangle.Color, rectangle.Blur, rectangle.Outline, rectangle.OutlineColor);
+    }
+
+    public static NowUIRectangle Rectangle(Rect position)
+    {
+        return new NowUIRectangle(position);
     }
 }

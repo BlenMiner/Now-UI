@@ -3,25 +3,14 @@ using UnityEngine;
 
 namespace NowUIInternal
 {
-    public struct NowVertex
-    {
-        public Vector3 position;
-
-        public Vector3 normal;
-
-        public Vector2 uv;
-
-        public NowVertex(Vector3 pos, Vector2 uv)
-        {
-            position = pos;
-            this.uv = uv;
-            normal = new Vector3(0, 0, -1);
-        }
-    }
-
     public class NowMesh
     {
         public Mesh UnityMesh {get; private set;}
+
+        List<Vector4> m_color;
+        List<Vector4> m_rect;
+
+        List<Vector4> m_radius;
 
         List<Vector3> m_verts;
 
@@ -33,16 +22,16 @@ namespace NowUIInternal
 
         public NowMesh()
         {
-            UnityMesh = new Mesh();
-            UnityMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-
-            GameObject.DontDestroyOnLoad(UnityMesh);
-
+            m_radius = new List<Vector4>();
+            m_rect = new List<Vector4>();
             m_verts = new List<Vector3>();
             m_normals = new List<Vector3>();
             m_uvs = new List<Vector2>();
+            m_color = new List<Vector4>();
             m_tris = new List<int>();
         }
+
+        readonly Vector4[] V4_BUFFER = new Vector4[4];
 
         readonly Vector3[] V3_BUFFER = new Vector3[4];
 
@@ -50,9 +39,68 @@ namespace NowUIInternal
 
         readonly int[] I_BUFFER = new int[6];
 
+        const int PRECISION = 4096;
+
+        float Pack(Vector2 input, Vector2 bounds)
+        {
+            Vector2 output = Vector2.Scale(input, new Vector2(1 / bounds.x, 1 / bounds.y));
+            output.x = Mathf.Floor(output.x * (PRECISION - 1));
+            output.y = Mathf.Floor(output.y * (PRECISION - 1));
+
+            return (output.x * PRECISION) + output.y;
+        }
+
+        Vector2 Pack(Vector4 input, Vector4 bounds)
+        {
+            return new Vector2(
+                Pack(new Vector2(input.x, input.y), new Vector2(bounds.x, bounds.y)),
+                Pack(new Vector2(input.z, input.w), new Vector2(bounds.z, bounds.w)));
+        }
+
+        Vector4 Pack(Vector4 a, Vector4 aBounds, Vector4 b, Vector4 bBounds)
+        {
+            var a2 = Pack(a, aBounds);
+            var b2 = Pack(b, bBounds);
+
+            return new Vector4(a2.x, a2.y, b2.x, b2.y);
+        }
+
         public void AddRect(Rect position, float z)
         {
+            AddRect(position, z, default, Color.white, default, 0f, Color.black);
+        }
+
+        public void AddRect(Rect position, float z, Vector4 radius, Color color, float blur, float outline, Color outlineColor)
+        {
             int indexOffset = m_verts.Count;
+
+            var rectV4 = new Vector4(position.position.x, position.position.y, position.size.x, position.size.y);
+            var packedRectRad = Pack(rectV4, new Vector4(8192, 4096, 8192, 4096), radius, new Vector4(8192, 4096, 8192, 4096));
+
+            V4_BUFFER[0] = packedRectRad;
+            V4_BUFFER[1] = packedRectRad;
+            V4_BUFFER[2] = packedRectRad;
+            V4_BUFFER[3] = packedRectRad;
+
+            m_rect.AddRange(V4_BUFFER);
+
+            var packedColorPadding = Pack(
+                color,                      new Vector4(1, 1, 1, 1),
+                new Vector4(blur, outline, 0, 0), new Vector4(4096, 4096, 1, 1));
+
+            V4_BUFFER[0] = packedColorPadding;
+            V4_BUFFER[1] = packedColorPadding;
+            V4_BUFFER[2] = packedColorPadding;
+            V4_BUFFER[3] = packedColorPadding;
+
+            m_radius.AddRange(V4_BUFFER);
+
+            V4_BUFFER[0] = outlineColor;
+            V4_BUFFER[1] = outlineColor;
+            V4_BUFFER[2] = outlineColor;
+            V4_BUFFER[3] = outlineColor;
+
+            m_color.AddRange(V4_BUFFER);
 
             V3_BUFFER[0] = new Vector3(position.x,                  position.y,                   0);
             V3_BUFFER[1] = new Vector3(position.x,                  position.y + position.height, 0);
@@ -85,25 +133,15 @@ namespace NowUIInternal
             m_tris.AddRange(I_BUFFER);
         }
 
-        public void AddVertex(NowVertex vertex)
-        {
-            m_tris.Add(m_verts.Count);
-            m_verts.Add(vertex.position);
-            m_normals.Add(vertex.normal);
-            m_uvs.Add(vertex.uv);
-        }
-
-        public void AddIndex(int index)
-        {
-            m_tris.Add(m_verts.Count + index);
-        }
-
         public void ClearVerticies()
         {
+            m_radius.Clear();
+            m_rect.Clear();
             m_verts.Clear();
             m_normals.Clear();
             m_uvs.Clear();
             m_tris.Clear();
+            m_color.Clear();
         }
 
         public void UploadMesh()
@@ -112,6 +150,7 @@ namespace NowUIInternal
             {
                 UnityMesh = new Mesh();
                 UnityMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+                UnityMesh.MarkDynamic();
             }
             
             UnityMesh.Clear(true);
@@ -119,7 +158,10 @@ namespace NowUIInternal
             UnityMesh.SetVertices(m_verts);
             UnityMesh.SetNormals(m_normals);
             UnityMesh.SetUVs(0, m_uvs);
-            UnityMesh.SetTriangles(m_tris, 0);
+            UnityMesh.SetUVs(1, m_rect);
+            UnityMesh.SetUVs(2, m_radius);
+            UnityMesh.SetUVs(3, m_color);
+            UnityMesh.SetTriangles(m_tris, 0, false);
         }
     }
 }
