@@ -26,7 +26,7 @@ public class NowUIFontCompiler : Editor
             {
                 var fontPath = AssetDatabase.GetAssetPath(target);
 
-                p.StartInfo.Arguments = $"-type mtsdf -font {fontPath} -format png -imageout {fontPath}.png -json {fontPath}.json -dimensions 1024 1024";
+                p.StartInfo.Arguments = $"-size 64 -pxrange 4 -type mtsdf -font {fontPath} -format png -imageout {fontPath}.png -json {fontPath}.json -pots";
                 p.Start();
 
                 EditorUtility.DisplayProgressBar("Compile Font", target.name, i / (float)selection.Length * 100f);
@@ -45,7 +45,7 @@ public class NowUIFontCompiler : Editor
                 {
                     var newFontPath = $"{fontPath}.asset";
 
-                    if (File.Exists(newFontPath)) File.Delete(newFontPath);
+                    if (File.Exists(newFontPath)) AssetDatabase.DeleteAsset(newFontPath);
 
                     NowFont font = CreateInstance(typeof(NowFont)) as NowFont;
                     AssetDatabase.CreateAsset(font, newFontPath);

@@ -1,4 +1,4 @@
-Shader "NowUI/UIRectangle"
+Shader "NowUI/UI Rectangle"
 {
     Properties
     {
@@ -54,41 +54,12 @@ Shader "NowUI/UIRectangle"
             float4 _MainTex_ST;
             float4 _Color;
 
-            #define PRECISION 4096
-
             float sdRoundedBox(float2 p, float2 b, float4 r )
             {
                 r.xy = (p.x>0.0)?r.xy : r.zw;
                 r.x  = (p.y>0.0)?r.x  : r.y;
                 float2 q = abs(p)-b+r.x;
                 return min(max(q.x,q.y),0.0) + length(max(q,0.0)) - r.x;
-            }
-
-            float2 Unpack(float input)
-            {
-                float2 output;
-
-                output.y = input % PRECISION;
-                output.x = floor(input / PRECISION);
-
-                return output / (PRECISION - 1);
-            }
-
-            void Unpack(float4 input, float4 aBounds, float4 bBounds, out float4 a, out float4 b)
-            {
-                a.xy = Unpack(input.x) * aBounds.xy;
-                a.zw = Unpack(input.y) * aBounds.zw;
-                b.xy = Unpack(input.z) * bBounds.xy;
-                b.zw = Unpack(input.w) * bBounds.zw;
-            }
-
-            float invLerp(float from, float to, float value){
-                return (value - from) / (to - from);
-            }
-
-            float remap(float origFrom, float origTo, float targetFrom, float targetTo, float value){
-                float rel = invLerp(origFrom, origTo, value);
-                return lerp(targetFrom, targetTo, rel);
             }
 
             v2f vert (appdata v)

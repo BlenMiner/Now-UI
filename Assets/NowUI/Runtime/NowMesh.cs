@@ -67,7 +67,7 @@ namespace NowUIInternal
 
         Vector4 extra;
 
-        public void AddRect(Vector4 position, Vector4 radius, Vector4 color, float blur, float outline, Vector4 outlineColor)
+        public void AddRect(Vector4 position, Vector4 radius, Vector4 color, float blur, float outline, Vector4 outlineColor, Vector4 uvwh)
         {
             int indexOffset = m_verts.Count;
 
@@ -153,20 +153,15 @@ namespace NowUIInternal
             var ruvs = m_uvs.Array;
             var ruvsCount = m_uvs.Count;
 
-            ruvs[ruvsCount] = uvConst[0];
-            ruvs[ruvsCount + 1] = uvConst[1];
-            ruvs[ruvsCount + 2] = uvConst[2];
-            ruvs[ruvsCount + 3] = uvConst[3];
+            Vector2 off = new Vector2(uvwh.x, uvwh.y);
+            Vector2 mult = new Vector2(uvwh.z, uvwh.w);
+
+            ruvs[ruvsCount] = off + uvConst[0] * mult;
+            ruvs[ruvsCount + 1] = off + uvConst[1] * mult;
+            ruvs[ruvsCount + 2] = off + uvConst[2] * mult;
+            ruvs[ruvsCount + 3] = off + uvConst[3] * mult;
 
             m_uvs.Count += 4;
-
-            int ucount = m_uvs.Count;
-            var uarr = m_uvs.Array;
-
-            uarr[ucount] = uvConst[0];
-            uarr[ucount + 1] = uvConst[1];
-            uarr[ucount + 2] = uvConst[2];
-            uarr[ucount + 3] = uvConst[3];
 
             int triCount = m_tris.Count;
             var triArr = m_tris.Array;

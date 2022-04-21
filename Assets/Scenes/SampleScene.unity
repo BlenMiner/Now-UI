@@ -235,3 +235,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_font: {fileID: 11400000, guid: e8d7533f4f04d5c4d984857fdfddd8b5, type: 2}
+  m_fontSize: 100

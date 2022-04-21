@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
@@ -57,4 +58,28 @@ public class NowFont : ScriptableObject
     public NowFontAtlasInfo AtlasInfo;
 
     public Material Material;
+
+    private Dictionary<char, NowFontAtlasInfo.Glyph> m_glyphTable;
+
+    public bool GetGlyph(char c, out NowFontAtlasInfo.Glyph glyph)
+    {
+        if (m_glyphTable == null)
+        {
+            m_glyphTable = new Dictionary<char, NowFontAtlasInfo.Glyph>();
+
+            foreach(var g in AtlasInfo.glyphs)
+            {
+                var glyphValue = g;
+
+                glyphValue.atlasBounds.left /= Atlas.width;
+                glyphValue.atlasBounds.right /= Atlas.width;
+                glyphValue.atlasBounds.top /= Atlas.height;
+                glyphValue.atlasBounds.bottom /= Atlas.height;
+
+                m_glyphTable.Add((char)g.unicode, glyphValue);
+            }
+        }
+
+        return m_glyphTable.TryGetValue(c, out glyph);
+    }
 }

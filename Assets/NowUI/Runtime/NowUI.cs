@@ -61,6 +61,8 @@ public static class NowUI
 
     static readonly Vector4 defaultColor = new Vector4(1, 1, 1, 1);
 
+    static readonly Vector4 defaultUV = new Vector4(0, 0, 1, 1);
+
     public static void DrawRect(Vector4 position)
     {
         NowUIRectangle rect = default;
@@ -97,11 +99,42 @@ public static class NowUI
         rectOCol.z = oc.b;
         rectOCol.w = oc.a;
 
-        GetMesh(m_defaultMaterial).AddRect(rectPos, rectangle.Radius, rectCol, rectangle.Blur, rectangle.Outline, rectOCol);
+        GetMesh(m_defaultMaterial).AddRect(rectPos, rectangle.Radius, rectCol, rectangle.Blur, rectangle.Outline, rectOCol, defaultUV);
     }
 
-    public static void DrawCharacter(Vector4 position, char character, NowFont font)
+    public static void DrawString(Vector4 rect, string value, NowFont font, float fontSize)
     {
+        Vector2 currentPos = new Vector2(rect.x, rect.y);
+
+        for (int i = 0; i < value.Length; ++i)
+        {
+            if (font.GetGlyph(value[i], out var glyph) && glyph.atlasBounds.left != glyph.atlasBounds.right)
+                DrawCharacter(currentPos, glyph, font, fontSize);
+        
+            currentPos.x += glyph.advance * fontSize;
+        }
+    }
+
+    public static void DrawCharacter(Vector2 pos, NowFontAtlasInfo.Glyph glyph, NowFont font, float fontSize)
+    {
+        var planeBounds = glyph.planeBounds;
+
+        float lineHeight = font.AtlasInfo.metrics.lineHeight * fontSize;
+
+        planeBounds.left *= fontSize;
+        planeBounds.right *= fontSize;
+        planeBounds.bottom *= fontSize;
+        planeBounds.top *= fontSize;
+
+        Vector4 position = new Vector4(
+            pos.x - planeBounds.left, pos.y - planeBounds.bottom,
+            planeBounds.right - planeBounds.left,
+            planeBounds.top - planeBounds.bottom
+        );
+
+        position.y += lineHeight - position.w;
+
+        var atlasBounds = glyph.atlasBounds;
         int rectHeight = (int)position.w;
 
         rectPos.x = (int)position.x;
@@ -109,7 +142,11 @@ public static class NowUI
         rectPos.z = (int)position.z;
         rectPos.w = rectHeight;
 
-        GetMesh(font.Material).AddRect(rectPos, default, defaultColor, 0f, 0f, default);
+        var uvwh = new Vector4(atlasBounds.left, atlasBounds.bottom,
+            atlasBounds.right - atlasBounds.left,
+            atlasBounds.top - atlasBounds.bottom
+        );
+        GetMesh(font.Material).AddRect(rectPos, default, defaultColor, 1f, fontSize, default, uvwh);
     }
 
     public static NowUIRectangle Rectangle(Vector4 position)
