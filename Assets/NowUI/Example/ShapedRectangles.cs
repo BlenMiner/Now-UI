@@ -2,9 +2,6 @@ using UnityEngine;
 
 public class ShapedRectangles : MonoBehaviour
 {
-    [Range(1, 200)]
-    public int COUNT = 16;
-
     [SerializeField] Color outline = Color.red;
 
     [SerializeField, Range(-200, 200)] float m_radius;
@@ -17,6 +14,7 @@ public class ShapedRectangles : MonoBehaviour
 
     private void OnPostRender()
     {
+        int COUNT = Mathf.RoundToInt((Mathf.Sin(Time.time * 0.5f) + 1) * 100);
         NowUI.BeingUI();
 
         float SIZEX = (float)Screen.width / COUNT;
