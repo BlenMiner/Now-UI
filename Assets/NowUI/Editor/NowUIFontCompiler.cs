@@ -26,7 +26,7 @@ public class NowUIFontCompiler : Editor
             {
                 var fontPath = AssetDatabase.GetAssetPath(target);
 
-                p.StartInfo.Arguments = $"-type mtsdf -font {fontPath} -format png -imageout {fontPath}.png -json {fontPath}.json -dimensions 2048 2048";
+                p.StartInfo.Arguments = $"-type mtsdf -font {fontPath} -format png -imageout {fontPath}.png -json {fontPath}.json -dimensions 1024 1024";
                 p.Start();
 
                 EditorUtility.DisplayProgressBar("Compile Font", target.name, i / (float)selection.Length * 100f);
@@ -54,15 +54,22 @@ public class NowUIFontCompiler : Editor
                     var ojson = AssetDatabase.LoadAssetAtPath($"{fontPath}.json", typeof(TextAsset)) as TextAsset;
 
                     Texture2D texture = new Texture2D(otexture.width, otexture.height);
+                    texture.name = "Font Atlas Texture";
                     texture.LoadImage(File.ReadAllBytes($"{fontPath}.png"), true);
 
-                    var json = Instantiate(ojson);
+                    Material fontMat = Instantiate(Resources.Load("NowUI/TxtMaterial")) as Material;
 
-                    font.Atlas = texture;
-                    font.Json = json;
+                    fontMat.mainTexture = texture;
 
                     AssetDatabase.AddObjectToAsset(texture, newFontPath);
-                    AssetDatabase.AddObjectToAsset(json, newFontPath);
+                    AssetDatabase.AddObjectToAsset(fontMat, newFontPath);
+                    AssetDatabase.Refresh();
+
+                    font.Atlas = texture;
+                    font.Material = fontMat;
+                    font.AtlasInfo = JsonUtility.FromJson<NowFontAtlasInfo>(ojson.text);
+
+                    AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(texture));
 
                     AssetDatabase.DeleteAsset($"{fontPath}.png");
                     AssetDatabase.DeleteAsset($"{fontPath}.json");

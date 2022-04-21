@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NowUIInternal;
 using UnityEngine;
 
@@ -8,17 +9,26 @@ public static class NowUI
 
     static Material m_defaultMaterial;
 
-    static NowMesh m_mesh;
-
     static Vector2 m_screen;
+
+    static Dictionary<Material, NowMesh> m_meshes = 
+       new Dictionary<Material, NowMesh>();
+
+    static NowMesh GetMesh(Material mat)
+    {
+        if (m_meshes.TryGetValue(mat, out var res))
+            return res;
+
+        res = new NowMesh();
+        m_meshes.Add(mat, res);
+
+        return res;
+    }
 
     private static void Initialize()
     {
         if (m_defaultMaterial == null)
             m_defaultMaterial = Resources.Load<Material>("NowUI/UIMaterial");
-
-        if (m_mesh == null)
-            m_mesh = new NowMesh();
     }
 
     public static void BeingUI()
@@ -29,23 +39,27 @@ public static class NowUI
 
     public static void EndUI()
     {
-        m_mesh.UploadMesh();
+        foreach(var mesh in m_meshes)
+            mesh.Value.UploadMesh();
 
         GL.PushMatrix();
         GL.LoadIdentity();
         var proj = Matrix4x4.Ortho(0, m_screen.x, -m_screen.y, 0, -1, 100);
         GL.LoadProjectionMatrix(proj);
 
-        m_defaultMaterial.SetPass(0);
-
-        Graphics.DrawMeshNow(m_mesh.UnityMesh, Camera.current.transform.localToWorldMatrix);
+        foreach(var mesh in m_meshes)
+        {
+            mesh.Key.SetPass(0);
+            Graphics.DrawMeshNow(mesh.Value.UnityMesh, Camera.current.transform.localToWorldMatrix);
+        }
 
         GL.PopMatrix();
 
-        m_mesh.ClearVerticies();
+        foreach(var mesh in m_meshes)
+            mesh.Value.ClearVerticies();
     }
 
-    static readonly Color defaultColor = Color.white;
+    static readonly Vector4 defaultColor = new Vector4(1, 1, 1, 1);
 
     public static void DrawRect(Vector4 position)
     {
@@ -61,7 +75,7 @@ public static class NowUI
     {
         var position = rectangle.Rect;
 
-        float rectHeight = position.w;
+        int rectHeight = (int)position.w;
 
         var pad = rectangle.Padding;
 
@@ -83,7 +97,19 @@ public static class NowUI
         rectOCol.z = oc.b;
         rectOCol.w = oc.a;
 
-        m_mesh.AddRect(rectPos, 0f, rectangle.Radius, rectCol, rectangle.Blur, rectangle.Outline, rectOCol);
+        GetMesh(m_defaultMaterial).AddRect(rectPos, rectangle.Radius, rectCol, rectangle.Blur, rectangle.Outline, rectOCol);
+    }
+
+    public static void DrawCharacter(Vector4 position, char character, NowFont font)
+    {
+        int rectHeight = (int)position.w;
+
+        rectPos.x = (int)position.x;
+        rectPos.y = -(int)(position.y + rectHeight);
+        rectPos.z = (int)position.z;
+        rectPos.w = rectHeight;
+
+        GetMesh(font.Material).AddRect(rectPos, default, defaultColor, 0f, 0f, default);
     }
 
     public static NowUIRectangle Rectangle(Vector4 position)

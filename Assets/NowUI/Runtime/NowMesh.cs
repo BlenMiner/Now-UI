@@ -67,7 +67,7 @@ namespace NowUIInternal
 
         Vector4 extra;
 
-        public void AddRect(Vector4 position, float z, Vector4 radius, Vector4 color, float blur, float outline, Vector4 outlineColor)
+        public void AddRect(Vector4 position, Vector4 radius, Vector4 color, float blur, float outline, Vector4 outlineColor)
         {
             int indexOffset = m_verts.Count;
 
@@ -126,19 +126,19 @@ namespace NowUIInternal
 
             a.x = position.x;
             a.y = position.y;
-            a.z = z;
+            a.z = 0;
             
             b.x = a.x;
             b.y = a.y + position.w;
-            b.z = z;
+            b.z = 0;
 
             c.x = a.x + position.z;
             c.y = b.y;
-            c.z = z;
+            c.z = 0;
 
             d.x = c.x;
             d.y = a.y;
-            d.z = z;
+            d.z = 0;
 
             var varr = m_verts.Array;
             var vcount = m_verts.Count;

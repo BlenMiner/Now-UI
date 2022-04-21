@@ -231,12 +231,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 68899997}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22fe35300e9fe054a9ec5461e9afb80f, type: 3}
+  m_Script: {fileID: 11500000, guid: 3d1b8aa84809aa148b044faa6ec1d50b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  COUNT: 200
-  outline: {r: 1, g: 0, b: 0, a: 1}
-  m_radius: 0
-  m_outline: 0
-  m_blur: 0
-  m_padding: 0
+  m_font: {fileID: 11400000, guid: e8d7533f4f04d5c4d984857fdfddd8b5, type: 2}
