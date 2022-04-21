@@ -73,7 +73,6 @@ Shader "NowUI/Text Renderer"
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 msd = tex2D(_MainTex, i.uv);
-                float blur = i.extras.x;
 
                 float xrange = max(4, ((i.extras.y / 64.0) * 4));
                 float yrange = max(4, ((i.extras.y / 64.0) * 4));
@@ -83,8 +82,11 @@ Shader "NowUI/Text Renderer"
                 float sd = median(msd.r, msd.g, msd.b);
                 float screenPxDistance = screenPxRange*(sd - 0.5);
                 float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
+                float4 color = i.color;
 
-                return fixed4(1, 1, 1, opacity);
+                color.a *= opacity;
+
+                return color;
             }
             ENDCG
         }

@@ -63,7 +63,7 @@ public static class NowUI
 
     static readonly Vector4 defaultUV = new Vector4(0, 0, 1, 1);
 
-    public static void DrawRect(Vector4 position)
+    private static void DrawRect(Vector4 position)
     {
         NowUIRectangle rect = default;
         rect.Rect = position;
@@ -102,35 +102,43 @@ public static class NowUI
         GetMesh(m_defaultMaterial).AddRect(rectPos, rectangle.Radius, rectCol, rectangle.Blur, rectangle.Outline, rectOCol, defaultUV);
     }
 
-    public static void DrawString(Vector4 rect, string value, NowFont font, float fontSize)
+    public static void DrawString(NowUIText style, string value)
     {
+        var fontSize = style.FontSize;
+        var font = style.Font;
+
+        float leftPos = style.Rect.x;
+
         const int tabSpaces = 4;
-        Vector2 currentPos = new Vector2(rect.x, rect.y);
 
         for (int i = 0; i < value.Length; ++i)
         {
             if (value[i] == '\n')
             {
-                currentPos.x = rect.x;
-                currentPos.y += font.AtlasInfo.metrics.lineHeight * fontSize;
+                style.Rect.x = leftPos;
+                style.Rect.y += font.AtlasInfo.metrics.lineHeight * fontSize;
             }
             else if (value[i] == '\t')
             {
                 if (font.GetGlyph(' ', out var space))
-                    currentPos.x += space.advance * fontSize * tabSpaces;
+                    style.Rect.x += space.advance * fontSize * tabSpaces;
             }
             else
             {
                 if (font.GetGlyph(value[i], out var glyph) && glyph.atlasBounds.left != glyph.atlasBounds.right)
-                    DrawCharacter(currentPos, glyph, font, fontSize);
+                    DrawCharacter(style, glyph);
             
-                currentPos.x += glyph.advance * fontSize;
+                style.Rect.x += glyph.advance * fontSize;
             }
         }
     }
 
-    public static void DrawCharacter(Vector2 pos, NowFontAtlasInfo.Glyph glyph, NowFont font, float fontSize)
+    public static void DrawCharacter(NowUIText style, NowFontAtlasInfo.Glyph glyph)
     {
+        var fontSize = style.FontSize;
+        var font = style.Font;
+        var rect = style.Rect;
+        var pos = new Vector2(rect.x, rect.y);
         var planeBounds = glyph.planeBounds;
 
         float lineHeight = font.AtlasInfo.metrics.lineHeight * fontSize;
@@ -155,16 +163,22 @@ public static class NowUI
         rectPos.y = -(int)(position.y + rectHeight);
         rectPos.z = (int)position.z;
         rectPos.w = rectHeight;
+        var pad = style.Padding;
 
         var uvwh = new Vector4(atlasBounds.left, atlasBounds.bottom,
             atlasBounds.right - atlasBounds.left,
             atlasBounds.top - atlasBounds.bottom
         );
-        GetMesh(font.Material).AddRect(rectPos, default, defaultColor, 1f, fontSize, default, uvwh);
+        GetMesh(font.Material).AddRect(rectPos, default, style.Color, 1f, fontSize, default, uvwh);
     }
 
     public static NowUIRectangle Rectangle(Vector4 position)
     {
         return new NowUIRectangle(position);
+    }
+
+    public static NowUIText Text(Vector4 position, NowFont font)
+    {
+        return new NowUIText(position, font);
     }
 }
