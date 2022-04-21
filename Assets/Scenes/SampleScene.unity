@@ -234,5 +234,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d1b8aa84809aa148b044faa6ec1d50b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_font: {fileID: 11400000, guid: e8d7533f4f04d5c4d984857fdfddd8b5, type: 2}
-  m_fontSize: 100
+  m_font: {fileID: 11400000, guid: c72d0fdf0d7141e4ebd5450fde01b473, type: 2}
+  m_fontSize: 50
+  m_text: 'Hello World
+
+    How is it going?'

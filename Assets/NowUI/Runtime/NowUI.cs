@@ -104,14 +104,28 @@ public static class NowUI
 
     public static void DrawString(Vector4 rect, string value, NowFont font, float fontSize)
     {
+        const int tabSpaces = 4;
         Vector2 currentPos = new Vector2(rect.x, rect.y);
 
         for (int i = 0; i < value.Length; ++i)
         {
-            if (font.GetGlyph(value[i], out var glyph) && glyph.atlasBounds.left != glyph.atlasBounds.right)
-                DrawCharacter(currentPos, glyph, font, fontSize);
-        
-            currentPos.x += glyph.advance * fontSize;
+            if (value[i] == '\n')
+            {
+                currentPos.x = rect.x;
+                currentPos.y += font.AtlasInfo.metrics.lineHeight * fontSize;
+            }
+            else if (value[i] == '\t')
+            {
+                if (font.GetGlyph(' ', out var space))
+                    currentPos.x += space.advance * fontSize * tabSpaces;
+            }
+            else
+            {
+                if (font.GetGlyph(value[i], out var glyph) && glyph.atlasBounds.left != glyph.atlasBounds.right)
+                    DrawCharacter(currentPos, glyph, font, fontSize);
+            
+                currentPos.x += glyph.advance * fontSize;
+            }
         }
     }
 
@@ -127,7 +141,7 @@ public static class NowUI
         planeBounds.top *= fontSize;
 
         Vector4 position = new Vector4(
-            pos.x - planeBounds.left, pos.y - planeBounds.bottom,
+            pos.x + planeBounds.left, pos.y - planeBounds.bottom,
             planeBounds.right - planeBounds.left,
             planeBounds.top - planeBounds.bottom
         );

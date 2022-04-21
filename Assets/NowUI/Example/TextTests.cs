@@ -6,6 +6,8 @@ public class TextTests : MonoBehaviour
 
     [SerializeField, Range(1, 200)] float m_fontSize = 100;
 
+    [SerializeField, TextArea] string m_text = "Hello World";
+
     private void OnPostRender()
     {
         NowUI.BeingUI();
@@ -14,7 +16,7 @@ public class TextTests : MonoBehaviour
             .SetColor(new Color(0.1f, 0.1f, 0.1f, 1f))
             .Draw();
 
-        NowUI.DrawString(new Vector4(20, 20, 100, 150), "Hello World", m_font, m_fontSize);
+        NowUI.DrawString(new Vector4(20, 20, 100, 150), m_text, m_font, m_fontSize);
 
         NowUI.EndUI();
     }

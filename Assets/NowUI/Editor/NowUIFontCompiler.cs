@@ -46,14 +46,14 @@ public class NowUIFontCompiler : Editor
                     var newFontPath = $"{fontPath}.asset";
 
                     if (File.Exists(newFontPath)) AssetDatabase.DeleteAsset(newFontPath);
+                    AssetDatabase.Refresh();
 
                     NowFont font = CreateInstance(typeof(NowFont)) as NowFont;
                     AssetDatabase.CreateAsset(font, newFontPath);
 
-                    var otexture = AssetDatabase.LoadAssetAtPath($"{fontPath}.png", typeof(Texture2D)) as Texture2D;
-                    var ojson = AssetDatabase.LoadAssetAtPath($"{fontPath}.json", typeof(TextAsset)) as TextAsset;
+                    var json = AssetDatabase.LoadAssetAtPath($"{fontPath}.json", typeof(TextAsset)) as TextAsset;
 
-                    Texture2D texture = new Texture2D(otexture.width, otexture.height);
+                    Texture2D texture = new Texture2D(1, 1);
                     texture.name = "Font Atlas Texture";
                     texture.LoadImage(File.ReadAllBytes($"{fontPath}.png"), true);
 
@@ -67,7 +67,9 @@ public class NowUIFontCompiler : Editor
 
                     font.Atlas = texture;
                     font.Material = fontMat;
-                    font.AtlasInfo = JsonUtility.FromJson<NowFontAtlasInfo>(ojson.text);
+                    font.AtlasInfo = JsonUtility.FromJson<NowFontAtlasInfo>(json.text);
+
+                    EditorUtility.SetDirty(font);
 
                     AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(texture));
 
