@@ -26,7 +26,7 @@ public class NowUIFontCompiler : Editor
             {
                 var fontPath = AssetDatabase.GetAssetPath(target);
 
-                p.StartInfo.Arguments = $"-size 64 -pxrange 16 -type mtsdf -font {fontPath} -format png -imageout {fontPath}.png -json {fontPath}.json -pots";
+                p.StartInfo.Arguments = $"-size 64 -pxrange 16 -type mtsdf -font {fontPath} -format png -imageout {fontPath}.png -json {fontPath}.json -square4";
                 p.Start();
 
                 EditorUtility.DisplayProgressBar("Compile Font", target.name, i / (float)selection.Length * 100f);
