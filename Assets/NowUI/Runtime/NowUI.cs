@@ -5,15 +5,15 @@ using UnityEngine;
 
 public static class NowUI
 {
-    static NowUIBootstrap m_bootstrap;
-
     static Material m_defaultMaterial;
 
     static Vector4 m_screenMask;
 
     static int m_defaultMesh = -1;
 
-        static StaticList<NowMesh> m_meshes = new StaticList<NowMesh>(100);
+    static StaticList<NowMesh> m_meshes = new StaticList<NowMesh>(100);
+
+    static int m_lastUsedMeshId = -1;
 
     static int CreateMesh(Material mat)
     {
@@ -49,15 +49,17 @@ public static class NowUI
         
         if (m_defaultMesh < 0)
             m_defaultMesh = CreateMesh(m_defaultMaterial);
+
+        m_lastUsedMeshId = m_defaultMesh;
     }
 
-    public static void BeingUI()
+    public static void StartUI()
     {
         m_screenMask = new Vector4(0, 0, Screen.width, Screen.height);
         Initialize();
     }
 
-    public static void EndUI()
+    public static void FlushUI()
     {
         var meshArray = m_meshes.Array;
         int count = m_meshes.Count;
@@ -105,6 +107,12 @@ public static class NowUI
         tmpVertex.color = rectangle.Color;
         tmpVertex.outlineColor = rectangle.OutlineColor;
         tmpVertex.uvwh = defaultUV;
+
+        if (m_lastUsedMeshId != m_defaultMesh)
+        {
+            m_lastUsedMeshId = m_defaultMesh;
+            FlushUI();
+        }
 
         m_meshes.Array[m_defaultMesh].AddRect(tmpVertex, rectangle.Blur, rectangle.Outline);
     }
@@ -178,6 +186,14 @@ public static class NowUI
         tmpVertex.radius = default;
         tmpVertex.color = style.Color;
         tmpVertex.outlineColor = default;
+
+        int matId = font.MaterialID;
+
+        if (m_lastUsedMeshId != matId)
+        {
+            m_lastUsedMeshId = matId;
+            FlushUI();
+        }
 
         GetMesh(font).AddRect(tmpVertex, 1f, fontSize);
     }

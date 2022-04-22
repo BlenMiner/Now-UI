@@ -15,7 +15,7 @@ public class ShapedRectangles : MonoBehaviour
     private void OnPostRender()
     {
         int COUNT = Mathf.RoundToInt((Mathf.Sin(Time.time * 0.5f) + 1) * 100);
-        NowUI.BeingUI();
+        NowUI.StartUI();
 
         float SIZEX = (float)Screen.width / COUNT;
         float SIZEY = (float)Screen.height / COUNT;
@@ -40,6 +40,6 @@ public class ShapedRectangles : MonoBehaviour
             }
         }
 
-        NowUI.EndUI();
+        NowUI.FlushUI();
     }
 }

@@ -14,7 +14,7 @@ public class TextTests : MonoBehaviour
 
     private void OnPostRender()
     {
-        NowUI.BeingUI();
+        NowUI.StartUI();
 
         NowUI.Rectangle(new Vector4(10, 10, 100, 150))
             .SetColor(new Color(0.1f, 0.1f, 0.1f, 1f))
@@ -30,6 +30,6 @@ public class TextTests : MonoBehaviour
             .SetColor(new Color(0.4f, 0.1f, 0.1f, 1f))
             .Draw();
 
-        NowUI.EndUI();
+        NowUI.FlushUI();
     }
 }
