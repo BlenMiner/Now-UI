@@ -59,13 +59,24 @@ public class NowFont : ScriptableObject
 
     public Material Material;
 
-    private Dictionary<char, NowFontAtlasInfo.Glyph> m_glyphTable;
+    [System.NonSerialized]
+    NowFontAtlasInfo.Glyph[] m_glyphTable;
+
+    [System.NonSerialized]
+    int m_glyphTableOffset;
+
+    [System.NonSerialized]
+    public int MaterialID;
 
     public bool GetGlyph(char c, out NowFontAtlasInfo.Glyph glyph)
     {
         if (m_glyphTable == null)
         {
-            m_glyphTable = new Dictionary<char, NowFontAtlasInfo.Glyph>();
+            int first = AtlasInfo.glyphs[0].unicode;
+            int last = AtlasInfo.glyphs[AtlasInfo.glyphs.Length - 1].unicode;
+
+            m_glyphTableOffset = first;
+            m_glyphTable = new NowFontAtlasInfo.Glyph[last - first + 1];
 
             foreach(var g in AtlasInfo.glyphs)
             {
@@ -76,10 +87,20 @@ public class NowFont : ScriptableObject
                 glyphValue.atlasBounds.top /= Atlas.height;
                 glyphValue.atlasBounds.bottom /= Atlas.height;
 
-                m_glyphTable.Add((char)g.unicode, glyphValue);
+                m_glyphTable[g.unicode - m_glyphTableOffset] = glyphValue;
             }
         }
 
-        return m_glyphTable.TryGetValue(c, out glyph);
+        int unicode = c;
+        int idx = unicode - m_glyphTableOffset;
+
+        if (idx < 0 || idx >= m_glyphTable.Length) 
+        {
+            glyph = default;
+            return false;
+        }
+
+        glyph = m_glyphTable[idx];
+        return glyph.unicode == unicode;
     }
 }

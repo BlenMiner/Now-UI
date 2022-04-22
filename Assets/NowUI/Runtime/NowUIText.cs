@@ -4,7 +4,7 @@ public struct NowUIText
 {
     public Vector4 Rect;
 
-    public Color Color;
+    public Vector4 Color;
 
     public Vector4 Padding;
 
@@ -20,7 +20,7 @@ public struct NowUIText
         Padding = default;
         Outline = default;
         FontSize = 50;
-        Color = new Color(1, 1, 1, 1);
+        Color = new Vector4(1, 1, 1, 1);
         Font = font;
     }
 
@@ -55,6 +55,12 @@ public struct NowUIText
     }
 
     public NowUIText SetColor(Color color)
+    {
+        Color = color;
+        return this;
+    }
+
+    public NowUIText SetColor(Vector4 color)
     {
         Color = color;
         return this;

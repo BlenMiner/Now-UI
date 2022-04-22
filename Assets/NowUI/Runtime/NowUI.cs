@@ -11,24 +11,44 @@ public static class NowUI
 
     static Vector2 m_screen;
 
-    static Dictionary<Material, NowMesh> m_meshes = 
-       new Dictionary<Material, NowMesh>();
+    static int m_defaultMesh = -1;
 
-    static NowMesh GetMesh(Material mat)
+    static StaticList<NowMesh> m_meshes = new StaticList<NowMesh>(100);
+
+    static int CreateMesh(Material mat)
     {
-        if (m_meshes.TryGetValue(mat, out var res))
-            return res;
+        int id = m_meshes.Count;
+        m_meshes.Array[id] = new NowMesh(mat);
+        m_meshes.Count = id + 1;
+        return id;
+    }
 
-        res = new NowMesh();
-        m_meshes.Add(mat, res);
+    static NowMesh GetMesh(NowFont font)
+    {
+        int id = font.MaterialID;
 
-        return res;
+        if (id >= 0 && id < m_meshes.Count && ReferenceEquals(m_meshes.Array[id].Material, font.Material)) 
+        {
+            return m_meshes.Array[id];
+        }
+        
+        id = CreateMesh(font.Material);
+        font.MaterialID = id;
+
+        return m_meshes.Array[id];
     }
 
     private static void Initialize()
     {
         if (m_defaultMaterial == null)
+        {
             m_defaultMaterial = Resources.Load<Material>("NowUI/UIMaterial");
+            m_meshes.Count = 0;
+            m_defaultMesh = -1;
+        }
+        
+        if (m_defaultMesh < 0)
+            m_defaultMesh = CreateMesh(m_defaultMaterial);
     }
 
     public static void BeingUI()
@@ -39,39 +59,33 @@ public static class NowUI
 
     public static void EndUI()
     {
-        foreach(var mesh in m_meshes)
-            mesh.Value.UploadMesh();
+        var meshArray = m_meshes.Array;
+        int count = m_meshes.Count;
+
+        for (int i = 0; i < count; ++i)
+            meshArray[i].UploadMesh();
 
         GL.PushMatrix();
         GL.LoadIdentity();
         var proj = Matrix4x4.Ortho(0, m_screen.x, -m_screen.y, 0, -1, 100);
         GL.LoadProjectionMatrix(proj);
 
-        foreach(var mesh in m_meshes)
+        for (int i = 0; i < count; ++i)
         {
-            mesh.Key.SetPass(0);
-            Graphics.DrawMeshNow(mesh.Value.UnityMesh, Camera.current.transform.localToWorldMatrix);
+            var mesh = meshArray[i];
+            mesh.Material.SetPass(0);
+            Graphics.DrawMeshNow(mesh.UnityMesh, Camera.current.transform.localToWorldMatrix);
         }
 
         GL.PopMatrix();
 
-        foreach(var mesh in m_meshes)
-            mesh.Value.ClearVerticies();
+        for (int i = 0; i < count; ++i)
+            meshArray[i].ClearVerticies();
     }
-
-    static readonly Vector4 defaultColor = new Vector4(1, 1, 1, 1);
 
     static readonly Vector4 defaultUV = new Vector4(0, 0, 1, 1);
 
-    private static void DrawRect(Vector4 position)
-    {
-        NowUIRectangle rect = default;
-        rect.Rect = position;
-        rect.Color = defaultColor;
-        DrawRect(rect);
-    }
-
-    static Vector4 rectPos, rectCol, rectOCol;
+    static Vector4 rectPos, uvwh;
 
     public static void DrawRect(NowUIRectangle rectangle)
     {
@@ -89,17 +103,7 @@ public static class NowUI
         rectPos.z = (int)(position.z - pad.x - pad.z);
         rectPos.w = (int)(rectHeight - pad.y - pad.w);
 
-        rectCol.x = c.r;
-        rectCol.y = c.g;
-        rectCol.z = c.b;
-        rectCol.w = c.a;
-
-        rectOCol.x = oc.r;
-        rectOCol.y = oc.g;
-        rectOCol.z = oc.b;
-        rectOCol.w = oc.a;
-
-        GetMesh(m_defaultMaterial).AddRect(rectPos, rectangle.Radius, rectCol, rectangle.Blur, rectangle.Outline, rectOCol, defaultUV);
+        m_meshes.Array[m_defaultMesh].AddRect(m_screen, rectPos, rectangle.Radius, c, rectangle.Blur, rectangle.Outline, oc, defaultUV);
     }
 
     public static void DrawString(NowUIText style, string value)
@@ -138,7 +142,6 @@ public static class NowUI
         var fontSize = style.FontSize;
         var font = style.Font;
         var rect = style.Rect;
-        var pos = new Vector2(rect.x, rect.y);
         var planeBounds = glyph.planeBounds;
 
         float lineHeight = font.AtlasInfo.metrics.lineHeight * fontSize;
@@ -148,28 +151,27 @@ public static class NowUI
         planeBounds.bottom *= fontSize;
         planeBounds.top *= fontSize;
 
-        Vector4 position = new Vector4(
-            pos.x + planeBounds.left, pos.y - planeBounds.bottom,
-            planeBounds.right - planeBounds.left,
-            planeBounds.top - planeBounds.bottom
-        );
+        float px = rect.x + planeBounds.left;
+        float py = rect.y - planeBounds.bottom;
+        float pz = planeBounds.right - planeBounds.left;
+        float pw = planeBounds.top - planeBounds.bottom;
 
-        position.y += lineHeight - position.w;
+        py += lineHeight - pw;
 
         var atlasBounds = glyph.atlasBounds;
-        int rectHeight = (int)position.w;
+        int rectHeight = (int)pw;
 
-        rectPos.x = (int)position.x;
-        rectPos.y = -(int)(position.y + rectHeight);
-        rectPos.z = (int)position.z;
+        rectPos.x = (int)px;
+        rectPos.y = -(int)(py + rectHeight);
+        rectPos.z = (int)pz;
         rectPos.w = rectHeight;
-        var pad = style.Padding;
 
-        var uvwh = new Vector4(atlasBounds.left, atlasBounds.bottom,
-            atlasBounds.right - atlasBounds.left,
-            atlasBounds.top - atlasBounds.bottom
-        );
-        GetMesh(font.Material).AddRect(rectPos, default, style.Color, 1f, fontSize, default, uvwh);
+        uvwh.x = atlasBounds.left;
+        uvwh.y = atlasBounds.bottom;
+        uvwh.z = atlasBounds.right - atlasBounds.left;
+        uvwh.w = atlasBounds.top - atlasBounds.bottom;
+
+        GetMesh(font).AddRect(m_screen, rectPos, default, style.Color, 1f, fontSize, default, uvwh);
     }
 
     public static NowUIRectangle Rectangle(Vector4 position)

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace NowUIInternal
 {
-    public struct StaticList<T> where T : unmanaged
+    public struct StaticList<T>
     {
         public int Count;
 
@@ -42,8 +42,11 @@ namespace NowUIInternal
 
         StaticList<int> m_tris;
 
-        public NowMesh()
+        public Material Material;
+
+        public NowMesh(Material mat)
         {
+            Material = mat;
             const int v = 1 << 18;
 
             m_radius = new StaticList<Vector4>(v);
@@ -67,8 +70,13 @@ namespace NowUIInternal
 
         Vector4 extra;
 
-        public void AddRect(Vector4 position, Vector4 radius, Vector4 color, float blur, float outline, Vector4 outlineColor, Vector4 uvwh)
+        public void AddRect(Vector2 screensize, Vector4 position, Vector4 radius, Vector4 color, float blur, float outline, Vector4 outlineColor, Vector4 uvwh)
         {
+            if (position.x + position.z < 0 ||
+                position.x >= screensize.x ||
+                -position.y < 0 ||
+                -position.y - position.w >= screensize.y) return;
+
             int indexOffset = m_verts.Count;
 
             extra.x = blur;
@@ -153,13 +161,27 @@ namespace NowUIInternal
             var ruvs = m_uvs.Array;
             var ruvsCount = m_uvs.Count;
 
-            Vector2 off = new Vector2(uvwh.x, uvwh.y);
-            Vector2 mult = new Vector2(uvwh.z, uvwh.w);
+            var uv0 = uvConst[0];
+            var uv1 = uvConst[1];
+            var uv2 = uvConst[2];
+            var uv3 = uvConst[3];
 
-            ruvs[ruvsCount] = off + uvConst[0] * mult;
-            ruvs[ruvsCount + 1] = off + uvConst[1] * mult;
-            ruvs[ruvsCount + 2] = off + uvConst[2] * mult;
-            ruvs[ruvsCount + 3] = off + uvConst[3] * mult;
+            uv0.x = uvwh.x + uv0.x * uvwh.z;
+            uv0.y = uvwh.y + uv0.y * uvwh.w;
+
+            uv1.x = uvwh.x + uv1.x * uvwh.z;
+            uv1.y = uvwh.y + uv1.y * uvwh.w;
+
+            uv2.x = uvwh.x + uv2.x * uvwh.z;
+            uv2.y = uvwh.y + uv2.y * uvwh.w;
+
+            uv3.x = uvwh.x + uv3.x * uvwh.z;
+            uv3.y = uvwh.y + uv3.y * uvwh.w;
+
+            ruvs[ruvsCount] = uv0;
+            ruvs[ruvsCount + 1] = uv1;
+            ruvs[ruvsCount + 2] = uv2;
+            ruvs[ruvsCount + 3] = uv3;
 
             m_uvs.Count += 4;
 

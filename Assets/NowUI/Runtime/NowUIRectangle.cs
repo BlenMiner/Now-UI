@@ -6,7 +6,7 @@ public struct NowUIRectangle
 
     public Vector4 Radius;
 
-    public Color Color;
+    public Vector4 Color;
 
     public Vector4 Padding;
 
@@ -14,7 +14,7 @@ public struct NowUIRectangle
 
     public float Outline;
 
-    public Color OutlineColor;
+    public Vector4 OutlineColor;
 
     public NowUIRectangle(Vector4 rect)
     {
@@ -23,7 +23,7 @@ public struct NowUIRectangle
         Padding = default;
         Blur = default;
         Outline = default;
-        Color = new Color(1, 1, 1, 1);
+        Color = new Vector4(1, 1, 1, 1);
         OutlineColor = default;
     }
 
@@ -63,7 +63,19 @@ public struct NowUIRectangle
         return this;
     }
 
+    public NowUIRectangle SetColor(Vector4 color)
+    {
+        Color = color;
+        return this;
+    }
+
     public NowUIRectangle SetOutlineColor(Color color)
+    {
+        OutlineColor = color;
+        return this;
+    }
+
+    public NowUIRectangle SetOutlineColor(Vector4 color)
     {
         OutlineColor = color;
         return this;
