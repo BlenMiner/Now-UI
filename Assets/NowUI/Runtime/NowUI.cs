@@ -185,7 +185,7 @@ public static class NowUI
         tmpVertex.mask = m_screenMask;
         tmpVertex.radius = default;
         tmpVertex.color = style.Color;
-        tmpVertex.outlineColor = default;
+        tmpVertex.outlineColor = style.OutlineColor;
 
         int matId = font.MaterialID;
 
@@ -195,7 +195,7 @@ public static class NowUI
             FlushUI();
         }
 
-        GetMesh(font).AddRect(tmpVertex, 1f, fontSize);
+        GetMesh(font).AddRect(tmpVertex, style.Outline, fontSize);
     }
 
     public static NowUIRectangle Rectangle(Vector4 position)

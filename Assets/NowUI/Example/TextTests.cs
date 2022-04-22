@@ -6,6 +6,10 @@ public class TextTests : MonoBehaviour
 
     [SerializeField] Color m_color;
 
+    [SerializeField] Color m_outOolor;
+
+    [SerializeField, Range(-1, 1)] float m_outline = 0f;
+
     [SerializeField, Range(1, 200)] float m_fontSize = 100;
 
     [SerializeField, Range(-200, 200)] float m_padding;
@@ -24,6 +28,8 @@ public class TextTests : MonoBehaviour
             .SetColor(m_color)
             .SetFontSize(m_fontSize)
             .SetPadding(m_padding)
+            .SetOutline(m_outline)
+            .SetOutlineColor(m_outOolor)
             .Draw(m_text);
 
         NowUI.Rectangle(new Vector4(50, 50, 100, 150))

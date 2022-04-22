@@ -6,6 +6,8 @@ public struct NowUIText
 
     public Vector4 Color;
 
+    public Vector4 OutlineColor;
+
     public Vector4 Padding;
 
     public float Outline;
@@ -21,6 +23,7 @@ public struct NowUIText
         Outline = default;
         FontSize = 50;
         Color = new Vector4(1, 1, 1, 1);
+        OutlineColor = new Vector4(0, 0, 0, 1);
         Font = font;
     }
 
@@ -45,6 +48,12 @@ public struct NowUIText
     public NowUIText SetOutline(float outline)
     {
         Outline = outline;
+        return this;
+    }
+
+        public NowUIText SetOutlineColor(Vector4 outline)
+    {
+        OutlineColor = outline;
         return this;
     }
 

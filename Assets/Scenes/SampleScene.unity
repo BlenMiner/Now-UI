@@ -219,9 +219,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d1b8aa84809aa148b044faa6ec1d50b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_font: {fileID: 11400000, guid: c72d0fdf0d7141e4ebd5450fde01b473, type: 2}
+  m_font: {fileID: 11400000, guid: 393d7f54dbb0f7f4dbe51307964e4c5a, type: 2}
   m_color: {r: 1, g: 1, b: 1, a: 1}
-  m_fontSize: 20
+  m_outOolor: {r: 1, g: 0, b: 0, a: 1}
+  m_outline: 0.1
+  m_fontSize: 100
   m_padding: 0
   m_text: 'Lorem ipsum dolor sit amet
 

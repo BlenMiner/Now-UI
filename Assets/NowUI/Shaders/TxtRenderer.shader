@@ -70,21 +70,29 @@ Shader "NowUI/Text Renderer"
                 return max(min(r, g), min(max(r, g), b));
             }
 
+            #define PIXELRANGE 16
+
             fixed4 frag (v2f i) : SV_Target
             {
+                float outline = i.extras.x;
                 fixed4 msd = tex2D(_MainTex, i.uv);
 
-                float xrange = max(4, ((i.extras.y / 64.0) * 4));
-                float yrange = max(4, ((i.extras.y / 64.0) * 4));
+                float xrange = (i.extras.y / 64.0) * PIXELRANGE;
+                float yrange = (i.extras.y / 64.0) * PIXELRANGE;
 
                 float screenPxRange = max(xrange, yrange);
 
                 float sd = median(msd.r, msd.g, msd.b);
-                float screenPxDistance = screenPxRange*(sd - 0.5);
-                float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
-                float4 color = i.color;
 
-                color.a *= opacity;
+                float screenPxDistance = screenPxRange * (sd - 0.5);
+                float screenPxDistanceOutline = screenPxRange * (sd - 0.5 + outline);
+
+                float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
+                float outlineOp = clamp(screenPxDistanceOutline + 0.5, 0.0, 1.0);
+
+                float4 color = outline == 0 ? i.color : lerp(i.outlineColor, i.color, outline < 0 ? outlineOp : opacity);
+
+                color.a *= max(opacity, outlineOp);
 
                 return color;
             }

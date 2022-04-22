@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10bbcf9941bbd194b90f55d4099e3d9c, type: 3}
+  m_Name: Allura-Regular.ttf
+  m_EditorClassIdentifier: 
+  Atlas: {fileID: 0}
+  AtlasInfo:
+    atlas:
+      type: 
+      distanceRange: 0
+      size: 0
+      width: 0
+      height: 0
+      yOrigin: 
+    metrics:
+      emSize: 0
+      lineHeight: 0
+      ascender: 0
+      descender: 0
+      underlineY: 0
+      underlineThickness: 0
+    glyphs: []
+  Material: {fileID: 0}
