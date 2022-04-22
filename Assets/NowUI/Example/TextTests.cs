@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class TextTests : MonoBehaviour
 {
-    [SerializeField] bool m_useGUI = false;
-
     [SerializeField] NowFont m_font;
 
     [SerializeField] Color m_color;
@@ -14,14 +12,6 @@ public class TextTests : MonoBehaviour
 
     [SerializeField, TextArea] string m_text = "Hello World";
 
-    private void OnGUI()
-    {
-        if (m_useGUI)
-        {
-            GUI.Label(new Rect(20, 20, 10000, 15000), m_text);
-        }
-    }
-
     private void OnPostRender()
     {
         NowUI.BeingUI();
@@ -30,14 +20,15 @@ public class TextTests : MonoBehaviour
             .SetColor(new Color(0.1f, 0.1f, 0.1f, 1f))
             .Draw();
 
-        if (!m_useGUI)
-        {
-            NowUI.Text(new Vector4(20, 20, 100, 150), m_font)
-                .SetColor(m_color)
-                .SetFontSize(m_fontSize)
-                .SetPadding(m_padding)
-                .Draw(m_text);
-        }
+        NowUI.Text(new Vector4(20, 20, 100, 150), m_font)
+            .SetColor(m_color)
+            .SetFontSize(m_fontSize)
+            .SetPadding(m_padding)
+            .Draw(m_text);
+
+        NowUI.Rectangle(new Vector4(50, 50, 100, 150))
+            .SetColor(new Color(0.4f, 0.1f, 0.1f, 1f))
+            .Draw();
 
         NowUI.EndUI();
     }
