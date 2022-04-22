@@ -20,6 +20,43 @@ namespace NowUIInternal
         }
     }
 
+    public struct NowRectVertex
+    {
+        public Vector4 mask;
+
+        public Vector4 position;
+
+        public Vector4 radius;
+
+        public Vector4 color;
+
+        public Vector4 outlineColor;
+
+        public Vector4 uvwh;
+
+        public bool IsOutsideMask(Vector4 rect)
+        {
+            return rect.x + rect.z < mask.x ||
+                rect.x >= mask.x + mask.z ||
+                -rect.y < mask.y ||
+                -rect.y - rect.w >= mask.y + mask.w;
+        }
+    }
+
+    public class SubMesh
+    {
+        public Material Material;
+
+        public StaticList<int> Tris;
+
+        public SubMesh(Material mat)
+        {
+            const int v = 1 << 18;
+            Material = mat;
+            Tris = new StaticList<int>(v * 3);
+        }
+    }
+
     public class NowMesh
     {
         public Mesh UnityMesh {get; private set;}
@@ -68,20 +105,19 @@ namespace NowUIInternal
 
         Vector4 extra;
 
-        public void AddRect(Vector2 screensize, Vector4 position, Vector4 radius, Vector4 color, float blur, float outline, Vector4 outlineColor, Vector4 uvwh)
+        public void AddRect(NowRectVertex vertexData, float extraX, float extraY)
         {
-            if (position.x + position.z < 0 ||
-                position.x >= screensize.x ||
-                -position.y < 0 ||
-                -position.y - position.w >= screensize.y) return;
+            if (vertexData.IsOutsideMask(vertexData.position)) return;
 
             int indexOffset = m_verts.Count;
 
-            extra.x = blur;
-            extra.y = outline;
+            extra.x = extraX;
+            extra.y = extraY;
 
             var rarray = m_rect.Array;
             var rcount = m_rect.Count;
+
+            var position = vertexData.position;
 
             rarray[rcount] = position;
             rarray[rcount + 1] = position;
@@ -93,30 +129,30 @@ namespace NowUIInternal
             var rrad= m_radius.Array;
             var rrcount = m_radius.Count;
 
-            rrad[rrcount] = radius;
-            rrad[rrcount + 1] = radius;
-            rrad[rrcount + 2] = radius;
-            rrad[rrcount + 3] = radius;
+            rrad[rrcount] = vertexData.radius;
+            rrad[rrcount + 1] = vertexData.radius;
+            rrad[rrcount + 2] = vertexData.radius;
+            rrad[rrcount + 3] = vertexData.radius;
 
             m_radius.Count += 4;
 
             var rcol = m_color.Array;
             var ccount = m_color.Count;
 
-            rcol[ccount] = color;
-            rcol[ccount + 1] = color;
-            rcol[ccount + 2] = color;
-            rcol[ccount + 3] = color;
+            rcol[ccount] = vertexData.color;
+            rcol[ccount + 1] = vertexData.color;
+            rcol[ccount + 2] = vertexData.color;
+            rcol[ccount + 3] = vertexData.color;
 
             m_color.Count += 4;
 
             var rout = m_outlineColor.Array;
             var ocount = m_outlineColor.Count;
 
-            rout[ocount] = outlineColor;
-            rout[ocount + 1] = outlineColor;
-            rout[ocount + 2] = outlineColor;
-            rout[ocount + 3] = outlineColor;
+            rout[ocount] = vertexData.outlineColor;
+            rout[ocount + 1] = vertexData.outlineColor;
+            rout[ocount + 2] = vertexData.outlineColor;
+            rout[ocount + 3] = vertexData.outlineColor;
 
             m_outlineColor.Count += 4;
 
@@ -163,6 +199,8 @@ namespace NowUIInternal
             var uv1 = uvConst[1];
             var uv2 = uvConst[2];
             var uv3 = uvConst[3];
+
+            var uvwh = vertexData.uvwh;
 
             uv0.x = uvwh.x + uv0.x * uvwh.z;
             uv0.y = uvwh.y + uv0.y * uvwh.w;

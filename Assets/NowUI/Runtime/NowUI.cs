@@ -9,11 +9,11 @@ public static class NowUI
 
     static Material m_defaultMaterial;
 
-    static Vector2 m_screen;
+    static Vector4 m_screenMask;
 
     static int m_defaultMesh = -1;
 
-    static StaticList<NowMesh> m_meshes = new StaticList<NowMesh>(100);
+        static StaticList<NowMesh> m_meshes = new StaticList<NowMesh>(100);
 
     static int CreateMesh(Material mat)
     {
@@ -53,7 +53,7 @@ public static class NowUI
 
     public static void BeingUI()
     {
-        m_screen = new Vector2(Screen.width, Screen.height);
+        m_screenMask = new Vector4(0, 0, Screen.width, Screen.height);
         Initialize();
     }
 
@@ -67,7 +67,7 @@ public static class NowUI
 
         GL.PushMatrix();
         GL.LoadIdentity();
-        var proj = Matrix4x4.Ortho(0, m_screen.x, -m_screen.y, 0, -1, 100);
+        var proj = Matrix4x4.Ortho(0, m_screenMask.z, -m_screenMask.w, 0, -1, 100);
         GL.LoadProjectionMatrix(proj);
 
         for (int i = 0; i < count; ++i)
@@ -85,7 +85,7 @@ public static class NowUI
 
     static readonly Vector4 defaultUV = new Vector4(0, 0, 1, 1);
 
-    static Vector4 rectPos, uvwh;
+    static NowRectVertex tmpVertex;
 
     public static void DrawRect(NowUIRectangle rectangle)
     {
@@ -95,15 +95,18 @@ public static class NowUI
 
         var pad = rectangle.Padding;
 
-        var c = rectangle.Color;
-        var oc = rectangle.OutlineColor;
+        tmpVertex.position.x = (int)(position.x + pad.x);
+        tmpVertex.position.y = -(int)(position.y + pad.y) - rectHeight;
+        tmpVertex.position.z = (int)(position.z - pad.x - pad.z);
+        tmpVertex.position.w = (int)(rectHeight - pad.y - pad.w);
 
-        rectPos.x = (int)(position.x + pad.x);
-        rectPos.y = -(int)(position.y + pad.y) - rectHeight;
-        rectPos.z = (int)(position.z - pad.x - pad.z);
-        rectPos.w = (int)(rectHeight - pad.y - pad.w);
+        tmpVertex.mask = m_screenMask;
+        tmpVertex.radius = rectangle.Radius;
+        tmpVertex.color = rectangle.Color;
+        tmpVertex.outlineColor = rectangle.OutlineColor;
+        tmpVertex.uvwh = defaultUV;
 
-        m_meshes.Array[m_defaultMesh].AddRect(m_screen, rectPos, rectangle.Radius, c, rectangle.Blur, rectangle.Outline, oc, defaultUV);
+        m_meshes.Array[m_defaultMesh].AddRect(tmpVertex, rectangle.Blur, rectangle.Outline);
     }
 
     public static void DrawString(NowUIText style, string value)
@@ -161,17 +164,22 @@ public static class NowUI
         var atlasBounds = glyph.atlasBounds;
         int rectHeight = (int)pw;
 
-        rectPos.x = (int)px;
-        rectPos.y = -(int)(py + rectHeight);
-        rectPos.z = (int)pz;
-        rectPos.w = rectHeight;
+        tmpVertex.position.x = (int)px;
+        tmpVertex.position.y = -(int)(py + rectHeight);
+        tmpVertex.position.z = (int)pz;
+        tmpVertex.position.w = rectHeight;
 
-        uvwh.x = atlasBounds.left;
-        uvwh.y = atlasBounds.bottom;
-        uvwh.z = atlasBounds.right - atlasBounds.left;
-        uvwh.w = atlasBounds.top - atlasBounds.bottom;
+        tmpVertex.uvwh.x = atlasBounds.left;
+        tmpVertex.uvwh.y = atlasBounds.bottom;
+        tmpVertex.uvwh.z = atlasBounds.right - atlasBounds.left;
+        tmpVertex.uvwh.w = atlasBounds.top - atlasBounds.bottom;
 
-        GetMesh(font).AddRect(m_screen, rectPos, default, style.Color, 1f, fontSize, default, uvwh);
+        tmpVertex.mask = m_screenMask;
+        tmpVertex.radius = default;
+        tmpVertex.color = style.Color;
+        tmpVertex.outlineColor = default;
+
+        GetMesh(font).AddRect(tmpVertex, 1f, fontSize);
     }
 
     public static NowUIRectangle Rectangle(Vector4 position)
