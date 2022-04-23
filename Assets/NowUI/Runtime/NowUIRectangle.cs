@@ -44,7 +44,12 @@ public struct NowUIRectangle
     
     public NowUIRectangle SetPadding(float all)
     {
+        all = -all;
         Padding = new Vector4(all, all, all, all);
+        Mask.x += Padding.x;
+        Mask.y += Padding.y;
+        Mask.z = Mask.z - Padding.x - Padding.z;
+        Mask.w = Mask.w - Padding.y - Padding.w;
         return this;
     }
 

@@ -20,7 +20,7 @@ public class ShapedRectangles : MonoBehaviour
         float SIZEX = (float)Screen.width / COUNT;
         float SIZEY = (float)Screen.height / COUNT;
 
-        var style = NowUI.Rectangle(default)
+        var style = NowUI.Rectangle((Vector4)default)
             .SetOutlineColor(outline)
             .SetBlur(m_blur)
             .SetRadius(m_radius)

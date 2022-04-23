@@ -92,15 +92,18 @@ public static class NowUI
     public static void DrawRect(NowUIRectangle rectangle)
     {
         var position = rectangle.Rect;
-
-        int rectHeight = (int)position.w;
-
         var pad = rectangle.Padding;
 
-        tmpVertex.position.x = (int)(position.x + pad.x);
-        tmpVertex.position.y = -(int)(position.y + pad.y) - rectHeight;
-        tmpVertex.position.z = (int)(position.z - pad.x - pad.z);
-        tmpVertex.position.w = (int)(rectHeight - pad.y - pad.w);
+        position.x += pad.x;
+        position.y += pad.y;
+        position.z = position.z - pad.x - pad.z;
+        position.w = position.w - pad.x - pad.w;
+        int rectHeight = (int)position.w;
+
+        tmpVertex.position.x = (int)position.x;
+        tmpVertex.position.y = (-(int)position.y) - rectHeight;
+        tmpVertex.position.z = (int)position.z;
+        tmpVertex.position.w = (int)rectHeight;
 
         tmpVertex.mask = rectangle.Mask;
         tmpVertex.radius = rectangle.Radius;
@@ -170,11 +173,11 @@ public static class NowUI
         py += lineHeight - pw;
 
         var atlasBounds = glyph.atlasBounds;
-        int rectHeight = (int)pw;
+        float rectHeight = pw;
 
-        tmpVertex.position.x = (int)px;
-        tmpVertex.position.y = -(int)(py + rectHeight);
-        tmpVertex.position.z = (int)pz;
+        tmpVertex.position.x = px;
+        tmpVertex.position.y = -(py + rectHeight);
+        tmpVertex.position.z = pz;
         tmpVertex.position.w = rectHeight;
 
         tmpVertex.uvwh.x = atlasBounds.left;
@@ -196,6 +199,11 @@ public static class NowUI
         }
 
         GetMesh(font).AddRect(tmpVertex, style.Outline, fontSize);
+    }
+
+    public static NowUIRectangle Rectangle(NowUIRectangle rect)
+    {
+        return rect;
     }
 
     public static NowUIRectangle Rectangle(Vector4 position)
