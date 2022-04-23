@@ -2,6 +2,8 @@ using UnityEngine;
 
 public struct NowUIRectangle
 {
+    public Vector4 Mask;
+
     public Vector4 Rect;
 
     public Vector4 Radius;
@@ -18,6 +20,7 @@ public struct NowUIRectangle
 
     public NowUIRectangle(Vector4 rect)
     {
+        Mask = rect;
         Rect = rect;
         Radius = default;
         Padding = default;
@@ -54,6 +57,12 @@ public struct NowUIRectangle
     public NowUIRectangle SetPosition(Vector4 rect)
     {
         Rect = rect;
+        return this;
+    }
+    
+    public NowUIRectangle SetMask(Vector4 mask)
+    {
+        Mask = mask;
         return this;
     }
 

@@ -24,17 +24,13 @@ public class TextTests : MonoBehaviour
             .SetColor(new Color(0.1f, 0.1f, 0.1f, 1f))
             .Draw();
 
-        NowUI.Text(new Vector4(20, 20, 100, 150), m_font)
+        NowUI.Text(new Vector4(10, 10, 100, 150), m_font)
             .SetColor(m_color)
             .SetFontSize(m_fontSize)
             .SetPadding(m_padding)
             .SetOutline(m_outline)
             .SetOutlineColor(m_outOolor)
             .Draw(m_text);
-
-        NowUI.Rectangle(new Vector4(50, 50, 100, 150))
-            .SetColor(new Color(0.4f, 0.1f, 0.1f, 1f))
-            .Draw();
 
         NowUI.FlushUI();
     }

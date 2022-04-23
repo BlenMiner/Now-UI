@@ -37,6 +37,8 @@ Shader "NowUI/Text Renderer"
                 float4 color : TEXCOORD3;
                 float4 outlineColor : TEXCOORD4;
                 float4 extras : TEXCOORD5;
+                float4 mask : TEXCOORD6;
+                float4 rawUV : TEXCOORD7;
             };
 
             struct v2f
@@ -48,6 +50,8 @@ Shader "NowUI/Text Renderer"
                 float4 color : TEXCOORD3;
                 float4 outlineColor : TEXCOORD4;
                 float4 extras : TEXCOORD5;
+                float4 mask : TEXCOORD6;
+                float4 rawUV : TEXCOORD7;
             };
 
             sampler2D _MainTex;
@@ -63,6 +67,8 @@ Shader "NowUI/Text Renderer"
                 o.color = v.color;
                 o.outlineColor = v.outlineColor;
                 o.extras = v.extras;
+                o.mask = v.mask;
+                o.rawUV = v.rawUV;
                 return o;
             }
 
@@ -74,6 +80,23 @@ Shader "NowUI/Text Renderer"
 
             fixed4 frag (v2f i) : SV_Target
             {
+                float4 rect = i.rect;
+                float4 mask = i.mask;
+
+                float2 pos = rect.xy + i.rawUV * rect.zw;
+
+                // Mask
+                clip(min(
+                    min(pos.x - mask.x,
+                        (mask.x + mask.z) - pos.x
+                    ),
+                    min(
+                        -pos.y - mask.y,
+                        (mask.y + mask.w) + pos.y
+                    )
+                ));
+
+
                 float outline = i.extras.x;
                 fixed4 msd = tex2D(_MainTex, i.uv);
 

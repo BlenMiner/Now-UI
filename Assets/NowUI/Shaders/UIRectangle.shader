@@ -37,6 +37,8 @@ Shader "NowUI/UI Rectangle"
                 float4 color : TEXCOORD3;
                 float4 outlineColor : TEXCOORD4;
                 float4 extras : TEXCOORD5;
+                float4 mask : TEXCOORD6;
+                float4 rawUV : TEXCOORD7;
             };
 
             struct v2f
@@ -48,6 +50,8 @@ Shader "NowUI/UI Rectangle"
                 float4 color : TEXCOORD3;
                 float4 outlineColor : TEXCOORD4;
                 float4 extras : TEXCOORD5;
+                float4 mask : TEXCOORD6;
+                float4 rawUV : TEXCOORD7;
             };
 
             sampler2D _MainTex;
@@ -72,20 +76,36 @@ Shader "NowUI/UI Rectangle"
                 o.color = v.color;
                 o.outlineColor = v.outlineColor;
                 o.extras = v.extras;
+                o.mask = v.mask;
+                o.rawUV = v.rawUV;
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
+                float2 uv = i.uv;
                 float4 rect = i.rect;
+                float4 mask = i.mask;
+
+                float2 size = rect.zw;
+                float2 pos = rect.xy + i.rawUV * rect.zw;
+
+                // Mask
+                clip(min(
+                    min(pos.x - mask.x,
+                        (mask.x + mask.z) - pos.x
+                    ),
+                    min(
+                        -pos.y - mask.y,
+                        (mask.y + mask.w) + pos.y
+                    )
+                ));
+
                 float4 rad = i.radius;
                 float4 color = i.color;
                 float4 data = i.extras;
-
                 float blur = data.x;
                 float outline = data.y;
-                float2 size = rect.zw;
-                float2 uv = i.uv;
 
                 fixed4 col = tex2D(_MainTex, i.uv) * color;
 

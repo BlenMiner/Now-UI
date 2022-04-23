@@ -61,6 +61,10 @@ namespace NowUIInternal
     {
         public Mesh UnityMesh {get; private set;}
 
+        StaticList<Vector4> m_rawuv;
+
+        StaticList<Vector4> m_mask;
+
         StaticList<Vector4> m_extra;
 
         StaticList<Vector4> m_outlineColor;
@@ -92,6 +96,8 @@ namespace NowUIInternal
             m_outlineColor = new StaticList<Vector4>(v);
             m_extra = new StaticList<Vector4>(v);
             m_tris = new StaticList<int>(v * 3);
+            m_mask = new StaticList<Vector4>(v);
+            m_rawuv= new StaticList<Vector4>(v);
         }
 
         Vector2[] uvConst = new Vector2[] {
@@ -113,6 +119,18 @@ namespace NowUIInternal
 
             extra.x = extraX;
             extra.y = extraY;
+
+            var maskarr = m_mask.Array;
+            var maskcount = m_mask.Count;
+
+            var mask = vertexData.mask;
+
+            maskarr[maskcount] = mask;
+            maskarr[maskcount + 1] = mask;
+            maskarr[maskcount + 2] = mask;
+            maskarr[maskcount + 3] = mask;
+
+            m_mask.Count += 4;
 
             var rarray = m_rect.Array;
             var rcount = m_rect.Count;
@@ -219,6 +237,15 @@ namespace NowUIInternal
             ruvs[ruvsCount + 2] = uv2;
             ruvs[ruvsCount + 3] = uv3;
 
+            var rawuvs = m_rawuv.Array;
+            var rawuvsCount = m_rawuv.Count;
+
+            rawuvs[rawuvsCount] = uvConst[0];
+            rawuvs[rawuvsCount + 1] = uvConst[1];
+            rawuvs[rawuvsCount + 2] = uvConst[2];
+            rawuvs[rawuvsCount + 3] = uvConst[3];
+
+            m_rawuv.Count += 4;
             m_uvs.Count += 4;
 
             int triCount = m_tris.Count;
@@ -244,6 +271,8 @@ namespace NowUIInternal
             m_color.Clear();
             m_outlineColor.Clear();
             m_extra.Clear();
+            m_mask.Clear();
+            m_rawuv.Clear();
         }
 
         public void UploadMesh()
@@ -264,6 +293,8 @@ namespace NowUIInternal
             UnityMesh.SetUVs(3, m_color.Array, 0, m_color.Count);
             UnityMesh.SetUVs(4, m_outlineColor.Array, 0, m_outlineColor.Count);
             UnityMesh.SetUVs(5, m_extra.Array, 0, m_extra.Count);
+            UnityMesh.SetUVs(6, m_mask.Array, 0, m_mask.Count);
+            UnityMesh.SetUVs(7, m_rawuv.Array, 0, m_rawuv.Count);
             UnityMesh.SetTriangles(m_tris.Array, 0, m_tris.Count, 0);
         }
     }

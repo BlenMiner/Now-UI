@@ -4,6 +4,8 @@ public struct NowUIText
 {
     public Vector4 Rect;
 
+    public Vector4 Mask;
+
     public Vector4 Color;
 
     public Vector4 OutlineColor;
@@ -21,6 +23,7 @@ public struct NowUIText
         Rect = rect;
         Padding = default;
         Outline = default;
+        Mask = rect;
         FontSize = 50;
         Color = new Vector4(1, 1, 1, 1);
         OutlineColor = new Vector4(0, 0, 0, 1);
@@ -60,6 +63,12 @@ public struct NowUIText
     public NowUIText SetPosition(Vector4 rect)
     {
         Rect = rect;
+        return this;
+    }
+
+    public NowUIText SetMask(Vector4 mask)
+    {
+        Mask = mask;
         return this;
     }
 

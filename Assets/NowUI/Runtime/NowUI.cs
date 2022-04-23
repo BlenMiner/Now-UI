@@ -7,7 +7,7 @@ public static class NowUI
 {
     static Material m_defaultMaterial;
 
-    static Vector4 m_screenMask;
+    public static Vector4 ScreenMask;
 
     static int m_defaultMesh = -1;
 
@@ -55,7 +55,7 @@ public static class NowUI
 
     public static void StartUI()
     {
-        m_screenMask = new Vector4(0, 0, Screen.width, Screen.height);
+        ScreenMask = new Vector4(0, 0, Screen.width, Screen.height);
         Initialize();
     }
 
@@ -69,7 +69,7 @@ public static class NowUI
 
         GL.PushMatrix();
         GL.LoadIdentity();
-        var proj = Matrix4x4.Ortho(0, m_screenMask.z, -m_screenMask.w, 0, -1, 100);
+        var proj = Matrix4x4.Ortho(0, ScreenMask.z, -ScreenMask.w, 0, -1, 100);
         GL.LoadProjectionMatrix(proj);
 
         for (int i = 0; i < count; ++i)
@@ -102,7 +102,7 @@ public static class NowUI
         tmpVertex.position.z = (int)(position.z - pad.x - pad.z);
         tmpVertex.position.w = (int)(rectHeight - pad.y - pad.w);
 
-        tmpVertex.mask = m_screenMask;
+        tmpVertex.mask = rectangle.Mask;
         tmpVertex.radius = rectangle.Radius;
         tmpVertex.color = rectangle.Color;
         tmpVertex.outlineColor = rectangle.OutlineColor;
@@ -182,7 +182,7 @@ public static class NowUI
         tmpVertex.uvwh.z = atlasBounds.right - atlasBounds.left;
         tmpVertex.uvwh.w = atlasBounds.top - atlasBounds.bottom;
 
-        tmpVertex.mask = m_screenMask;
+        tmpVertex.mask = style.Mask;
         tmpVertex.radius = default;
         tmpVertex.color = style.Color;
         tmpVertex.outlineColor = style.OutlineColor;
